@@ -1,18 +1,49 @@
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/ptrace.h>
 #include <string>
 using namespace std;
 int main()
 {
-	while(cin){
-		string input;
+	
+	//int status;
+	//cout<<"myshell";
+	while(1)
+	{
 		cout<<"myShell $ ";
+		string input;
 		getline(cin,input);
-		if(input == "exit")
-			break;
-		else
-			cout<<input<<endl;
-		 
-
+		char *cstr = new char[input.length() + 1];
+		strcpy(cstr, input.c_str());
+		pid_t child_pid = fork();	
+		if(child_pid >= 0)
+		{	
+	 		if(child_pid == 0)
+			{
+				return execve(cstr,NULL,NULL);
+			}
+			else
+			{
+				int status;
+				pid_t sign = waitpid(child_pid,&status,0);
+				if(input == "exit")
+					break;
+				else
+				{
+					if(WIFSIGNALED(status))
+						cout<<"Program was killed by signal "<<WTERMSIG(status)<<endl;
+					cout<<"Program was killed by state "<<status<<endl;
+					continue;	
+				}		
+			}
+		
+	 	}
+	 	else
+	 	{
+	 		perror("fork failed");
+	 	}
 	}
 	return 0;
 }
