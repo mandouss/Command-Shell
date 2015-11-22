@@ -12,8 +12,10 @@ int main()
 	//cout<<"myshell";
 	while(1)
 	{
+		//output the shell
 		cout<<"myShell $ ";
 		string input;
+		//get the input 
 		getline(cin,input);
 		char *cstr = new char[input.length() + 1];
 		strcpy(cstr, input.c_str());
