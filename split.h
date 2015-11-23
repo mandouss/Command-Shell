@@ -6,4 +6,6 @@
 using namespace std;
 void splitBySymbol(string s, vector<string>& ret, char symbol);  
 
+void substring(char const*s,int i,int n,char *t);
+
 #endif

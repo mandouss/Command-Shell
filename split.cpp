@@ -9,11 +9,6 @@ void splitBySymbol(string s, vector<string>& ret,char symbol)
     last =s.find_first_of(symbol,first);
     while (last!=std::string::npos)
     {
-    	// string result;
-    	// if(symbol == ':')
-    	// {
-    	// 	result = "PATH=" + s.substr(first,last-first);
-    	// }
         ret.push_back(s.substr(first,last-first));
         first=s.find_first_not_of(symbol,last);
         last =s.find_first_of(symbol,first);
@@ -24,5 +19,13 @@ void splitBySymbol(string s, vector<string>& ret,char symbol)
     }
     return;
 
+}
+
+void substring(char const*s,int i,int n,char *t)
+{
+ 	int j=0;
+ 	for(;j<n;j++)
+  		t[j]=s[i++];
+ 	t[j]=0;
 }
 
