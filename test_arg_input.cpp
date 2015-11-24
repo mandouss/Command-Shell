@@ -7,6 +7,6 @@ int main(int argc, char **argv)
 	{
  		printf ("Arg %d is %s\n", i, argv[i]);
  	}
-	cout<<"hello, this is a test program!"<<endl;
+	cout<<"hello, this is a arg test program!"<<endl;
 	return 0;
 }

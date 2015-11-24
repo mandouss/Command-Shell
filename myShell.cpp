@@ -6,14 +6,11 @@
 #include <sys/wait.h>
 #include <sys/ptrace.h>
 #include <sys/stat.h>
-#include <string>
-#include <vector>
 #include "split.h"
 #include "find.h"
+#include "dir.h"
 
 extern char **environ;
-using namespace std;
-
 char *convert(const string & s)
 {
    char *pc = new char[s.size()+1];
@@ -23,7 +20,7 @@ char *convert(const string & s)
 
 int main()
 {
-
+	stack<string> paths;
 	string env = getenv("PATH");
 	vector<string> env_vec;
 	char colon = ':';
@@ -34,38 +31,72 @@ int main()
 	//  }
 	while(1)
 	{
+		//current path
+		char cwd[PATH_MAX+1];
+		getcwd(cwd,PATH_MAX+1);
+
 		//output the shell
-		cout<<"myShell $ ";
+
+		cout<<"myShell:"<<cwd<<" $ ";
 		string input;
 		bool findCommand = false;
 		bool absolute = false;
 		//get the input 
-
-
 		getline(cin,input);
 		vector<string> args_vec;
 		splitBySpace(input,args_vec);
-		cout<<args_vec.size()<<endl;
 		if(cin.eof())
 		{
 			cout<<endl;
 			return EXIT_SUCCESS;
 		}
-		char *cmd;
-		char *arg;
-		char **args;
-		args = new char*[args_vec.size()+1];
-		//set the args
-		for(int i = 1 ; i < args_vec.size();i++)
+		char *cmd = NULL;
+		char *arg = NULL;
+		char **args = NULL;
+		
+
+		if(changeDir(args_vec[0],args_vec[1],paths))
 		{
-			char *temp = new char[args_vec[i].length()+1];
-			strcpy(temp, args_vec[i].c_str());
-			args[i] = temp;
+			continue;
 		}
-		args[args_vec.size()] = NULL;
-		if(input.find_first_of('/') == string::npos)
+		
+
+
+
+
+
+		//set the args
+		//if the command is not relative w
+		//put the first secton of the command into arg
+		if(args_vec[0].find("./") == string::npos)
+		{
+			args = new char*[args_vec.size()+1];
+			for(int i = 1 ; i < args_vec.size();i++)
 			{
-				//dealing with the path which doesn't has /
+				char *temp = new char[args_vec[i].length()+1];
+				strcpy(temp, args_vec[i].c_str());
+				args[i] = temp;
+			}
+			args[args_vec.size()] = NULL;			
+		}
+		//if the command is relative
+		//else don't need to put the first section into arg
+		else
+		{
+			args = new char*[args_vec.size()];
+			for(int i = 1 ; i < args_vec.size();i++)
+			{
+				char *temp = new char[args_vec[i].length()+1];
+				strcpy(temp, args_vec[i].c_str());
+				args[i-1] = temp;
+			}
+			args[args_vec.size()-1] = NULL;
+		}
+	
+		//dealing with command in the PATH environment
+		if(args_vec[0].find_first_of('/') == string::npos)
+		{
+				
 				for(int i = 0; i < env_vec.size(); i++)
 				{
 					if(findFile(args_vec[0],env_vec[i]))
@@ -81,12 +112,12 @@ int main()
 					
 					}
 				}
-			}
+		}
 		else
-			{
+		{
 				cmd = new char[args_vec[0].length()+1];
 				strcpy(cmd, args_vec[0].c_str());
-				//if it is absolute path
+				//deal command has absolute path
 				if(args_vec[0].find("./") == string::npos)
 				{
 					int last = args_vec[0].find_last_of("/");
@@ -96,30 +127,7 @@ int main()
            			cout<<arg;
 					absolute = true;
 				}
-			}			
-
-			// cmd = new char[args_vec[0].length()+1];
-			// strcpy(cmd, args_vec[0].c_str);
-			// args = new char*[args_vec.size()];
-			// for(int i = 1; i < args_vec.size();i++ )
-			// {
-			// 	args
-			// }
-		
-		// else
-		// {
-		// 	vector<string> args;
-		// 	char space = ' ';
-		// 	splitBySymbol(input,args,space);
-		// 	for( size_t i = 0; i < args.size(); ++i )
-		// 	{ 
-	 //  			cout<<args[i]<<endl;
-		// 	}
-
-		// }
-
-
-
+		}	
 
 		pid_t child_pid = fork();	
 		if(child_pid >= 0)
@@ -136,7 +144,7 @@ int main()
 					}
 					else
 					{
-						if(input != "exit" && !cin.eof())
+						if(args_vec[0] != "exit" && !cin.eof())
 						{
 							cout<<"Command "<<input<<" not found"<<endl;
 						}
@@ -144,17 +152,16 @@ int main()
 					}
 				}
 				else
-				{	
+				{
+					//absolute path?	
 					if(absolute)
 					{
-						cout<<"absolute path"<<endl;
-						cout<<args[0];
-						cout<<args[1];
-						return execve(cmd,args,NULL);
+						return execve(cmd,args,environ);
 					}
+					//relative path
 					else
 					{
-						return execve(cmd,NULL,NULL);
+						return execve(cmd,args,environ);
 					}
 
 				}				
@@ -164,11 +171,18 @@ int main()
 			{
 				int status;
 				waitpid(child_pid,&status,0);
-				if(input == "exit")
+				if(args_vec[0]== "exit")
 				{
-    				delete cmd;
-					delete arg;
-					delete [] args;	
+					// if(cmd != NULL) delete cmd;
+					// int i = 0;
+					// while(args[i] != NULL)
+					// {
+					// 	if(args[i] != arg)
+					// 		delete args[i];
+					// 	i++;
+					// }
+					// if(arg != NULL) delete arg;
+					// delete [] args;	
 					break;
 				}
 				else

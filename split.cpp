@@ -1,6 +1,7 @@
 #include "split.h"
 //it is a split function that can split string into vector 
-//by a specific symbol 
+//by a specific symbol
+//has consider the "repeat symbols" situation 
 void splitBySymbol(string s, vector<string>& ret,char symbol)  
 {  
     size_t last = 0;
@@ -20,6 +21,7 @@ void splitBySymbol(string s, vector<string>& ret,char symbol)
     return;
 
 }
+
 //get substring of a sting
 void substring(char const*s,int i,int n,char *t)
 {
@@ -29,6 +31,8 @@ void substring(char const*s,int i,int n,char *t)
  	t[j]=0;
 }
 
+//delete all space in command and split the command into vector
+//ignore the first space follow the '/' symbol
 void splitBySpace(string s, vector<string>& ret)
 {
 	int first = 0;

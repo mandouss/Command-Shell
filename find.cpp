@@ -1,4 +1,5 @@
 #include "find.h"
+//find the file in the directory
 bool findFile(string filename,string dir)
 {
 	int isFind = 0;
@@ -32,6 +33,5 @@ bool findFile(string filename,string dir)
    	{
    		return false;
    	}
-
 
 }
