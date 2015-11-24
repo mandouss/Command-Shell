@@ -28,10 +28,10 @@ int main()
 	vector<string> env_vec;
 	char colon = ':';
 	splitBySymbol(env,env_vec,colon);
-	for( size_t i = 0; i < env_vec.size(); ++i )
-	{ 
-	  	cout<<env_vec[i]<<endl;
-	 }
+	// for( size_t i = 0; i < env_vec.size(); ++i )
+	// { 
+	//   	cout<<env_vec[i]<<endl;
+	//  }
 	while(1)
 	{
 		//output the shell
@@ -43,6 +43,9 @@ int main()
 
 
 		getline(cin,input);
+		vector<string> args_vec;
+		splitBySpace(input,args_vec);
+		cout<<args_vec.size()<<endl;
 		if(cin.eof())
 		{
 			cout<<endl;
@@ -51,43 +54,70 @@ int main()
 		char *cmd;
 		char *arg;
 		char **args;
-		if(input.find_first_of('/') == string::npos)
+		args = new char*[args_vec.size()+1];
+		//set the args
+		for(int i = 1 ; i < args_vec.size();i++)
 		{
-			for(int i = 0; i < env_vec.size(); i++)
+			char *temp = new char[args_vec[i].length()+1];
+			strcpy(temp, args_vec[i].c_str());
+			args[i] = temp;
+		}
+		args[args_vec.size()] = NULL;
+		if(input.find_first_of('/') == string::npos)
 			{
-				if(findFile(input,env_vec[i]))
+				//dealing with the path which doesn't has /
+				for(int i = 0; i < env_vec.size(); i++)
 				{
-					string command = env_vec[i]+'/'+input;
-					cmd = new char[command.length() + 1];
-					strcpy(cmd, command.c_str());
-					arg =  new char[input.length() + 1];
-					strcpy(arg, input.c_str());
-					args = new char* [1+1];
-           			args[0] = arg;
-           			args[1] = NULL;
-           			findCommand = true;
-           			break;
+					if(findFile(args_vec[0],env_vec[i]))
+					{
+						string command = env_vec[i]+'/'+args_vec[0];
+						cmd = new char[command.length() + 1];
+						strcpy(cmd, command.c_str());
+						arg =  new char[args_vec[0].length() + 1];
+						strcpy(arg, args_vec[0].c_str());
+           				args[0] = arg;
+           				findCommand = true;
+           				break;
 					
+					}
 				}
 			}
-		}
 		else
-		{
-			cmd = new char[input.length()+1];
-			strcpy(cmd, input.c_str());
-			if(input.find("./") == string::npos)
 			{
-				int last = input.find("/");
-				arg =  new char[input.length()-last + 1];
-				substring(input.c_str(),last,input.length(),arg);
-				args = new char* [1+1];
-           		args[0] = arg;
-           		args[1] = NULL;	
-				absolute = true;
+				cmd = new char[args_vec[0].length()+1];
+				strcpy(cmd, args_vec[0].c_str());
+				//if it is absolute path
+				if(args_vec[0].find("./") == string::npos)
+				{
+					int last = args_vec[0].find_last_of("/");
+					arg =  new char[args_vec[0].length()-last];
+					substring(args_vec[0].c_str(),last+1,args_vec[0].length(),arg);
+           			args[0] = arg;
+           			cout<<arg;
+					absolute = true;
+				}
+			}			
 
-			}
+			// cmd = new char[args_vec[0].length()+1];
+			// strcpy(cmd, args_vec[0].c_str);
+			// args = new char*[args_vec.size()];
+			// for(int i = 1; i < args_vec.size();i++ )
+			// {
+			// 	args
+			// }
+		
+		// else
+		// {
+		// 	vector<string> args;
+		// 	char space = ' ';
+		// 	splitBySymbol(input,args,space);
+		// 	for( size_t i = 0; i < args.size(); ++i )
+		// 	{ 
+	 //  			cout<<args[i]<<endl;
+		// 	}
 
-		}
+		// }
+
 
 
 
@@ -101,6 +131,7 @@ int main()
 				{
 					if(findCommand)
 					{
+						//find command in PATH
 						return execve(cmd,args,environ);
 					}
 					else
@@ -113,17 +144,19 @@ int main()
 					}
 				}
 				else
-				{
-				
+				{	
 					if(absolute)
 					{
+						cout<<"absolute path"<<endl;
+						cout<<args[0];
+						cout<<args[1];
 						return execve(cmd,args,NULL);
-					}	
+					}
 					else
 					{
 						return execve(cmd,NULL,NULL);
 					}
-    				
+
 				}				
 			}
 			//parent process
