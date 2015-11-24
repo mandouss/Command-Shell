@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdio.h>  
 #include <stdlib.h>  
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
@@ -10,7 +9,7 @@
 #include "find.h"
 #include "dir.h"
 
-extern char **environ;
+extern char **environ; 
 char *convert(const string & s)
 {
    char *pc = new char[s.size()+1];
@@ -25,10 +24,6 @@ int main()
 	vector<string> env_vec;
 	char colon = ':';
 	splitBySymbol(env,env_vec,colon);
-	// for( size_t i = 0; i < env_vec.size(); ++i )
-	// { 
-	//   	cout<<env_vec[i]<<endl;
-	//  }
 	while(1)
 	{
 		//current path
@@ -36,7 +31,6 @@ int main()
 		getcwd(cwd,PATH_MAX+1);
 
 		//output the shell
-
 		cout<<"myShell:"<<cwd<<" $ ";
 		string input;
 		bool findCommand = false;
@@ -53,18 +47,15 @@ int main()
 		char *cmd = NULL;
 		char *arg = NULL;
 		char **args = NULL;
-		
+		if(args_vec.size() == 0)
+		{
+			continue;
+		}
 
 		if(changeDir(args_vec[0],args_vec[1],paths))
 		{
 			continue;
 		}
-		
-
-
-
-
-
 		//set the args
 		//if the command is not relative w
 		//put the first secton of the command into arg
@@ -173,16 +164,14 @@ int main()
 				waitpid(child_pid,&status,0);
 				if(args_vec[0]== "exit")
 				{
-					// if(cmd != NULL) delete cmd;
-					// int i = 0;
-					// while(args[i] != NULL)
-					// {
-					// 	if(args[i] != arg)
-					// 		delete args[i];
-					// 	i++;
-					// }
-					// if(arg != NULL) delete arg;
-					// delete [] args;	
+					delete cmd;
+					int i = 0;
+					while(args[i] != NULL)
+					{
+						delete args[i];
+						i++;
+					}
+					delete [] args;	
 					break;
 				}
 				else

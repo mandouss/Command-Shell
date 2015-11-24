@@ -1,5 +1,6 @@
 #include "dir.h"
-bool changeDir(string command,string args,stack<string>& paths)
+//function dealing with the directories command
+bool changeDir(string command,string args,stack<string>& path)
 {
 	if(command == (string("cd")))
 	{
@@ -13,28 +14,37 @@ bool changeDir(string command,string args,stack<string>& paths)
       else 
       	return true;
     }
+
+
     //for pushd command
     if(command == string("pushd"))
-    {
-      paths.push(args);
-      int ret;
-      ret = chdir(args.c_str());
-      if(ret == -1) 
-      {
-      	perror("Change directory error");
-      	return true;
-      }
-      else 
-      	return true;
+    {	
+    	char cwd[PATH_MAX+1];
+		getcwd(cwd,PATH_MAX+1);
+		string old_path(cwd);	
+      	path.push(old_path);
+      	int ret;
+      	ret = chdir(args.c_str());
+      	if(ret == -1) 
+      	{
+      		perror("Change directory error");
+      		return true;
+      	}
+      	else 
+      		return true;
     }
+
+
     //for popd command
     if(command == string("popd")){
-      if(paths.empty())
+      if(path.empty())
       {
       	perror("Empth path stack");
       	return true;
       }
-      const char * tmp = (paths.top()).c_str();
+      cout<<"path size is" << path.size()<<endl;
+      const char * tmp = path.top().c_str();
+      //cout<<tmp<<endl;
       int ret;
       ret = chdir(tmp);
       if(ret == -1) 
@@ -44,20 +54,29 @@ bool changeDir(string command,string args,stack<string>& paths)
       }
       else
       {
-      	paths.pop();
+      	path.pop();
       	return true;
       }
     }
+
+
     //for dirstack command
     if(command == string("dirstack"))
     {
-      stack<string> disp(paths);
-      for (size_t i = 0;i < disp.size();++i)
+      stack<string> disp(path);
+      stack<string> reverse;
+      for (size_t i = 0;i < path.size();++i)
       {
-      		cout << disp.top() << endl;
+      		reverse.push(disp.top());
       		disp.pop();
       }
-      return true;;
+      for (size_t i = 0;i < path.size();++i)
+      {
+      		cout<<reverse.top()<<endl;
+      		reverse.pop();
+      }
+
+      return true;
     }
     return false;
 

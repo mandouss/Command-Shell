@@ -41,11 +41,14 @@ void splitBySpace(string s, vector<string>& ret)
 	{
 		if(s.at(current) == ' ')
 		{
+			//situation:have space at first
 			if(current == first)
 			{
 				++first;
 				continue;
 			}
+			//situation: find space, but has '/' before, 
+			//situation: find space at the last, but has '/' before
 			else if(s.at(current-1) == '/')
 			{
 				if(current != s.length()-1)
@@ -62,6 +65,7 @@ void splitBySpace(string s, vector<string>& ret)
 					first = current+1;						
 				}
 			}
+			//situation: find space, push command into vector
 			else
 			{
 				char *in = new char[current-first];
@@ -75,8 +79,11 @@ void splitBySpace(string s, vector<string>& ret)
 
 			}
 		}
+
 		else 
 		{
+			//situation: one command without space
+			//situation: command at the last,with no space in the end
 			if(current ==s.length()-1)
 			{
 				char *in = new char[current-first+1];
