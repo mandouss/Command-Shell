@@ -23,20 +23,26 @@ void splitBySymbol(string s, vector<string>& ret,char symbol)
 }
 
 //get substring of a sting
-void substring(char const*s,int i,int n,char *t)
+char* substring(char const*s,int i,int n)
 {
- 	int j=0;
- 	for(;j<n;j++)
-  		t[j]=s[i++];
- 	t[j]=0;
+  char* result = new char[n-i+1];
+  int j=0;
+  int b = i;
+  for(;j<n-i;j++)
+    {
+      result[j]=s[b++];
+    }
+  result[j] = '\0';
+  return result;
+ 	//t[j]='\0';
 }
 
 //delete all space in command and split the command into vector
 //ignore the first space follow the '/' symbol
 void splitBySpace(string s, vector<string>& ret)
 {
-	int first = 0;
-	int current = 0;
+	size_t first = 0;
+        size_t current = 0;
 	for(current = 0; current < s.length();current++)
 	{
 		if(s.at(current) == ' ')
@@ -49,17 +55,17 @@ void splitBySpace(string s, vector<string>& ret)
 			}
 			//situation: find space, but has '/' before, 
 			//situation: find space at the last, but has '/' before
-			else if(s.at(current-1) == '/')
+			else if(s.at(current-1) == '\\')
 			{
 				if(current != s.length()-1)
 					continue;
 				else
 				{
-					char *in = new char[current-first+1];
+					char *in = new char[current-first+2];
 					s.copy(in,current-first+1,first);
 					in[current-first+1]='\0';
 					string put(in);
-					delete in;
+					delete[] in;
 					ret.push_back(put);
 					if(current+1 < s.length())
 					first = current+1;						
@@ -68,15 +74,15 @@ void splitBySpace(string s, vector<string>& ret)
 			//situation: find space, push command into vector
 			else
 			{
-				char *in = new char[current-first];
-				s.copy(in,current-first,first);
-				in[current-first] = '\0';
-				string put(in);
-				delete in;
-				ret.push_back(put);
-				if(current+1 < s.length())
-				first = current+1;
-
+			  char *in = new char[current-first+1];
+			  s.copy(in,current-first,first);
+			  in[current-first] = '\0';
+			  string put(in);
+			  delete[] in;
+			  ret.push_back(put);
+			  if(current+1 < s.length())
+			  first = current+1;
+			  
 			}
 		}
 
@@ -86,11 +92,11 @@ void splitBySpace(string s, vector<string>& ret)
 			//situation: command at the last,with no space in the end
 			if(current ==s.length()-1)
 			{
-				char *in = new char[current-first+1];
+				char *in = new char[current-first+2];
 				s.copy(in,current-first+1,first);
 				in[current-first+1]='\0';
-				string put(in);
-				delete in;
+				string put = in;
+				delete[] in;
 				ret.push_back(put);
 				if(current+1 < s.length())
 				first = current+1;				
