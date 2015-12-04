@@ -34,76 +34,43 @@ char* substring(char const*s,int i,int n)
     }
   result[j] = '\0';
   return result;
- 	//t[j]='\0';
+
 }
 
 //delete all space in command and split the command into vector
-//ignore the first space follow the '/' symbol
+//ignore the first space follow the '\' symbol
 void splitBySpace(string s, vector<string>& ret)
 {
-	size_t first = 0;
+
         size_t current = 0;
+	string to_add;
 	for(current = 0; current < s.length();current++)
 	{
-		if(s.at(current) == ' ')
+	  //check whether current is '\' symbol
+	  if(s.at(current) == '\\')
+	    {
+	      //check whether space is follow '\' symbol
+	      if(current < s.length()-1 && s.at(current+1) == ' ')
 		{
-			//situation:have space at first
-			if(current == first)
-			{
-				++first;
-				continue;
-			}
-			//situation: find space, but has '/' before, 
-			//situation: find space at the last, but has '/' before
-			else if(s.at(current-1) == '\\')
-			{
-				if(current != s.length()-1)
-					continue;
-				else
-				{
-					char *in = new char[current-first+2];
-					s.copy(in,current-first+1,first);
-					in[current-first+1]='\0';
-					string put(in);
-					delete[] in;
-					ret.push_back(put);
-					if(current+1 < s.length())
-					first = current+1;						
-				}
-			}
-			//situation: find space, push command into vector
-			else
-			{
-			  char *in = new char[current-first+1];
-			  s.copy(in,current-first,first);
-			  in[current-first] = '\0';
-			  string put(in);
-			  delete[] in;
-			  ret.push_back(put);
-			  if(current+1 < s.length())
-			  first = current+1;
-			  
-			}
+		  to_add.append(" ");
+		  current +=1;
 		}
-
-		else 
+	    }
+	  else if(s.at(current) == ' ')
+	    {
+	      if(to_add != "")
+	      ret.push_back(to_add);
+	      to_add = "";
+	    }
+	  else 
+	    {
+	      to_add.append(1,s.at(current));
+	      if(current ==s.length()-1)
 		{
-			//situation: one command without space
-			//situation: command at the last,with no space in the end
-			if(current ==s.length()-1)
-			{
-				char *in = new char[current-first+2];
-				s.copy(in,current-first+1,first);
-				in[current-first+1]='\0';
-				string put = in;
-				delete[] in;
-				ret.push_back(put);
-				if(current+1 < s.length())
-				first = current+1;				
-
-			}
+		  ret.push_back(to_add);
 		}
-		
+	    }
+	  
 	}
 }
 
