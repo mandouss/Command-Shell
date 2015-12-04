@@ -5,8 +5,13 @@ bool changeDir(string command,string args,stack<string>& path)
   if(command == (string("cd")))
     {
       int ret;
+      if(args.length() == 0)
+	{
+	  const char* home ="/home/sl379";
+	  ret = chdir(home);
+	}
       ret = chdir(args.c_str());
-      if(ret == -1) 
+      if(ret == -1 && args.length() != 0) 
 	{
 	  perror("Change directory error");
 	  return true;
@@ -22,16 +27,19 @@ bool changeDir(string command,string args,stack<string>& path)
       char cwd[PATH_MAX+1];
       getcwd(cwd,PATH_MAX+1);
       string old_path(cwd);
-      path.push(old_path);
+      // path.push(old_path);
       int ret;
       ret = chdir(args.c_str());
       if(ret == -1) 
 	{
-	  perror("Change directory error");
+	  perror("Pushd directory error");
 	  return true;
 	}
       else 
-	return true;
+	{
+	  path.push(old_path);
+	  return true;
+	}
     }
   
   
@@ -48,7 +56,7 @@ bool changeDir(string command,string args,stack<string>& path)
     ret = chdir(tmp);
     if(ret == -1) 
       {
-	perror("Change directory error");
+	perror("Popd directory error");
 	return true;
       }
     else

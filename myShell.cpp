@@ -73,7 +73,7 @@ int main()
 		  }
 		
 		//--set the args---------------------------------------------------------
-		//if the command is not relative w
+		//if the command is not relative (/bin/ls)
 		//put the first secton of the command into arg
  		if(args_vec[0].find("./") == string::npos)
 		  {
@@ -87,7 +87,7 @@ int main()
 		      }
 		    args[args_vec.size()] = NULL;			
 		  }
-		//if the command is relative
+		//if the command is relative (../test)
 		//else don't need to put the first section into arg
 		else
 		  {
@@ -104,7 +104,7 @@ int main()
 		//--------------------------------------------------------------------
 		
 
-		//--deal with different types of command------------------------------
+		//--deal with different types of command (ls)
 		//dealing with command in the PATH environment
 		if(args_vec[0].find_first_of('/') == string::npos)
 		  {
